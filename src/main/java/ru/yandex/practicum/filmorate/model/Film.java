@@ -8,13 +8,12 @@ import java.time.LocalDate;
 
 @Data
 public class Film {
-    @NotNull @Min(1)
     private long id;
 
     @NotNull @NotBlank
     private String name;
 
-    @Size(max=200)
+    @NotNull @NotBlank @Size(max=200)
     private String description;
 
     @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

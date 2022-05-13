@@ -22,16 +22,18 @@ public class UserController {
     }
 
     @PostMapping
-    public void create(@Valid @RequestBody User user, HttpServletRequest request) {
+    public User create(@Valid @RequestBody User user, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Тело: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user.toString());
         users.put(user.getId(), user);
+        return user;
     }
 
     @PutMapping
-    public void update(@Valid @RequestBody User user, HttpServletRequest request) {
+    public User update(@Valid @RequestBody User user, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Тело: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user.toString());
         users.put(user.getId(), user);
+        return user;
     }
 }

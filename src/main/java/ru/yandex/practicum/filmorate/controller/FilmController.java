@@ -25,19 +25,21 @@ public class FilmController {
     }
 
     @PostMapping
-    public void create(@Valid @RequestBody Film film, HttpServletRequest request) {
+    public Film create(@Valid @RequestBody Film film, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Тело: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film.toString());
         checkReleaseDate(film.getReleaseDate());
         films.put(film.getId(), film);
+        return film;
     }
 
     @PutMapping
-    public void update(@Valid @RequestBody Film film, HttpServletRequest request) {
+    public Film update(@Valid @RequestBody Film film, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Тело: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film.toString());
         checkReleaseDate(film.getReleaseDate());
         films.put(film.getId(), film);
+        return film;
     }
 
     private void checkReleaseDate(LocalDate date) {

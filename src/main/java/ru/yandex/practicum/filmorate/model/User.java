@@ -8,7 +8,6 @@ import java.time.LocalDate;
 
 @Data
 public class User {
-    @NotNull @Min(1)
     private long id;
 
     @NotNull @NotBlank @Email
