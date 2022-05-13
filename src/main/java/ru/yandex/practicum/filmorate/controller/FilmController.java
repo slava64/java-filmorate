@@ -43,7 +43,7 @@ public class FilmController {
     private void checkReleaseDate(LocalDate date) {
         LocalDate minDate = LocalDate.of(1895, Month.DECEMBER, 28);
         if (minDate.isAfter(date)) {
-            log.error("Дата релиза должна быть больше 28 декабря 1895 года");
+            log.warn("Дата релиза должна быть больше 28 декабря 1895 года");
             throw new ReleaseDateException("Дата релиза должна быть больше 28 декабря 1895 года");
         }
     }

@@ -58,7 +58,7 @@ class FilmControllerTest {
                         .content("{\"id\": 1, \"name\": \"Последний герой\"," +
                                 "\"description\": \"Описание\", \"releaseDate\": \"1895-12-27\", " +
                                 "\"duration\": 100}"))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
