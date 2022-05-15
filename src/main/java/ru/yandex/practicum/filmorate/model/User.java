@@ -13,7 +13,7 @@ public class User {
     @NotNull @NotBlank @Email
     private String email;
 
-    @NotNull @NotBlank
+    @NotNull @NotBlank @Pattern(regexp = "^\\S*$")
     private String login;
 
     private String name;
