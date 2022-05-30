@@ -3,10 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class InMemoryUserStorage implements UserStorage{
@@ -16,12 +13,7 @@ public class InMemoryUserStorage implements UserStorage{
 
     @Override
     public void add(User user) {
-        if (user.getId() == null) {
-            user.setId(id++);
-        }
-        if (user.getName().isEmpty() || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+        user.setId(id++);
         users.put(user.getId(), user);
     }
 
@@ -31,8 +23,8 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public void delete(User user) {
-        users.remove(user.getId());
+    public User delete(Long id) {
+        return users.remove(id);
     }
 
     @Override
@@ -41,25 +33,7 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public User findOne(Long id) {
-        return users.get(id);
-    }
-
-    @Override
-    public User addFriend(Long id, Long friendId) {
-        User user = users.get(id);
-        user.getFriends().add(friendId);
-        User friend = users.get(friendId);
-        friend.getFriends().add(id);
-        return user;
-    }
-
-    @Override
-    public User deleteFriend(Long id, Long friendId) {
-        User user = users.get(id);
-        user.getFriends().remove(friendId);
-        User friend = users.get(friendId);
-        friend.getFriends().remove(id);
-        return user;
+    public Optional<User> findOne(Long id) {
+        return Optional.ofNullable(users.get(id));
     }
 }

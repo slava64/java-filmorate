@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -13,9 +14,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void add(Film film) {
-        if (film.getId() == null) {
-            film.setId(id++);
-        }
+        film.setId(id++);
         films.put(film.getId(), film);
     }
 
@@ -25,8 +24,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void delete(Film film) {
-        films.remove(film.getId());
+    public Film delete(Long id) {
+        return films.remove(id);
     }
 
     @Override
@@ -35,21 +34,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film findOne(Long id) {
-        return films.get(id);
-    }
-
-    @Override
-    public Film addLike(Long id, Long userId) {
-        Film film = films.get(id);
-        film.getLikes().add(userId);
-        return film;
-    }
-
-    @Override
-    public Film deleteLike(Long id, Long userId) {
-        Film film = films.get(id);
-        film.getLikes().remove(userId);
-        return film;
+    public Optional<Film> findOne(Long id) {
+        return Optional.ofNullable(films.get(id));
     }
 }

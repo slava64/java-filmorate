@@ -2,12 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FriendsNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import javax.validation.Valid;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -28,14 +26,12 @@ public class UserService {
     }
 
     public User findOne(Long id) {
-        checkUser(id);
-        return userStorage.findOne(id);
+        return userStorage.findOne(id).orElseThrow(
+                () -> new UserNotFoundException(String.format("Пользователь %d не найден", id)));
     }
 
     public List<User> findAllFriends(Long id) {
-        checkUser(id);
-        //checkFriends(id);
-        User user = userStorage.findOne(id);
+        User user = findOne(id);
         Collection<User> users = userStorage.findAll().values();
         return users
                 .stream()
@@ -44,12 +40,8 @@ public class UserService {
     }
 
     public List<User> findAllFriendsCommon(Long id, Long friendId) {
-        checkUser(id);
-        checkUser(friendId);
-        //checkFriends(id);
-        //checkFriends(friendId);
-        User user = userStorage.findOne(id);
-        User friend = userStorage.findOne(friendId);
+        User user = findOne(id);
+        User friend = findOne(friendId);
         Set<Long> friendsCommon = getSetFriendsCommon(user.getFriends(), friend.getFriends());
         Collection<User> users = userStorage.findAll().values();
         return users
@@ -59,43 +51,42 @@ public class UserService {
     }
 
     public User create(User user) {
+        validateUser(user);
         userStorage.add(user);
         return user;
     }
 
-    public User update(@Valid User user) {
-        checkUser(user.getId());
+    public User update(User user) {
+        validateUser(user);
+        findOne(user.getId());
         userStorage.update(user);
         return user;
     }
 
-    public User delete(@Valid User user) {
-        checkUser(user.getId());
-        userStorage.delete(user);
-        return user;
+    public User delete(Long id) {
+        findOne(id);
+        return userStorage.delete(id);
     }
 
     public User addFriend(Long id, Long friendId) {
-        checkUser(id);
-        checkUser(friendId);
-        return userStorage.addFriend(id, friendId);
+        User user = findOne(id);
+        User friend = findOne(friendId);
+        user.getFriends().add(friendId);
+        friend.getFriends().add(id);
+        return user;
     }
 
     public User deleteFriend(Long id, Long friendId) {
-        checkUser(id);
-        checkUser(friendId);
-        return userStorage.deleteFriend(id, friendId);
+        User user = findOne(id);
+        User friend = findOne(friendId);
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(id);
+        return user;
     }
 
-    private void checkUser(Long id) {
-        if (userStorage.findOne(id) == null) {
-            throw new UserNotFoundException(String.format("Пользователь %d не найден", id));
-        }
-    }
-
-    private void checkFriends(Long userId) {
-        if (userStorage.findOne(userId).getFriends().size() == 0) {
-            throw new FriendsNotFoundException(String.format("Друзья у пользователя %d не найдены", userId));
+    private void validateUser(User user) {
+        if (user.getName().isEmpty() || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
     }
 

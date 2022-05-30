@@ -1,18 +1,21 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.Collection;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@Validated
 public class UserController {
     private final UserService userService;
 
@@ -51,10 +54,17 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User user, HttpServletRequest request) {
+    public User update(@Valid @RequestBody User user, HttpServletRequest request) {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Тело: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), user.toString());
         return userService.update(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public User delete(@PathVariable("id") Long id, HttpServletRequest request) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
+        return userService.delete(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReleaseDateException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -18,12 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final UserService userService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+        this.userService = userService;
     }
 
     public Collection<Film> findAll() {
@@ -39,8 +37,8 @@ public class FilmService {
     }
 
     public Film findOne(Long id) {
-        checkFilm(id);
-        return filmStorage.findOne(id);
+        return filmStorage.findOne(id).orElseThrow(
+                () -> new FilmNotFoundException(String.format("Фильм %d не найден", id)));
     }
 
     public Film create(Film film) {
@@ -50,46 +48,35 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        checkFilm(film.getId());
+        findOne(film.getId());
         checkReleaseDate(film.getReleaseDate());
         filmStorage.update(film);
         return film;
     }
 
-    public Film delete(Film film) {
-        checkFilm(film.getId());
-        filmStorage.delete(film);
-        return film;
+    public Film delete(Long id) {
+        findOne(id);
+        return filmStorage.delete(id);
     }
 
     public Film addLike(Long id, Long userId) {
-        checkFilm(id);
-        checkUser(userId);
-        return filmStorage.addLike(id, userId);
+        userService.findOne(userId);
+        Film film = findOne(id);
+        film.getLikes().add(userId);
+        return film;
     }
 
     public Film deleteLike(Long id, Long userId) {
-        checkFilm(id);
-        checkUser(userId);
-        return filmStorage.deleteLike(id, userId);
+        userService.findOne(userId);
+        Film film = findOne(id);
+        film.getLikes().remove(userId);
+        return film;
     }
 
     private void checkReleaseDate(LocalDate date) {
         LocalDate minDate = LocalDate.of(1895, Month.DECEMBER, 28);
         if (minDate.isAfter(date)) {
             throw new ReleaseDateException("Дата релиза должна быть больше 28 декабря 1895 года");
-        }
-    }
-
-    private void checkFilm(Long id) {
-        if (filmStorage.findOne(id) == null) {
-            throw new FilmNotFoundException(String.format("Фильм %d не найден", id));
-        }
-    }
-
-    private void checkUser(Long id) {
-        if (userStorage.findOne(id) == null) {
-            throw new UserNotFoundException(String.format("Пользователь %d не найден", id));
         }
     }
 }

@@ -2,18 +2,21 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.Collection;
 import java.util.List;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@Validated
 public class FilmController {
     private final FilmService filmService;
 
@@ -29,7 +32,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> findAllPopular(
-            @RequestParam(defaultValue = "10", required = false) Integer count
+            @Positive @RequestParam(defaultValue = "10", required = false) int count
     ) {
         return filmService.findAllPopular(count);
     }
@@ -51,6 +54,16 @@ public class FilmController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}', Тело: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString(), film.toString());
         return filmService.update(film);
+    }
+
+    @DeleteMapping("/{id}")
+    public Film delete(
+            @PathVariable Long id,
+            HttpServletRequest request
+    ) {
+        log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
+                request.getMethod(), request.getRequestURI(), request.getQueryString());
+        return filmService.delete(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
