@@ -5,10 +5,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
-    private long id;
+    private Long id;
 
     @NotNull @NotBlank @Email
     private String email;
@@ -20,4 +22,6 @@ public class User {
 
     @Past @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate birthday;
+
+    private Set<Long> friends = new HashSet<>();
 }
