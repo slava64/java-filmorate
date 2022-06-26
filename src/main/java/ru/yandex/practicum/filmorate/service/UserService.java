@@ -64,23 +64,22 @@ public class UserService {
     }
 
     public User delete(Long id) {
-        findOne(id);
-        return userStorage.delete(id);
+        User user = findOne(id);
+        userStorage.delete(id);
+        return user;
     }
 
     public User addFriend(Long id, Long friendId) {
         User user = findOne(id);
         User friend = findOne(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(id);
+        userStorage.addFriend(user, friend);
         return user;
     }
 
     public User deleteFriend(Long id, Long friendId) {
         User user = findOne(id);
         User friend = findOne(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(id);
+        userStorage.deleteFriend(user, friend);
         return user;
     }
 

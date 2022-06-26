@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReleaseDateException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
@@ -55,21 +57,22 @@ public class FilmService {
     }
 
     public Film delete(Long id) {
-        findOne(id);
-        return filmStorage.delete(id);
+        Film film = findOne(id);
+        filmStorage.delete(id);
+        return film;
     }
 
     public Film addLike(Long id, Long userId) {
-        userService.findOne(userId);
+        User user = userService.findOne(userId);
         Film film = findOne(id);
-        film.getLikes().add(userId);
+        filmStorage.addLike(film, user);
         return film;
     }
 
     public Film deleteLike(Long id, Long userId) {
-        userService.findOne(userId);
+        User user = userService.findOne(userId);
         Film film = findOne(id);
-        film.getLikes().remove(userId);
+        filmStorage.deleteLike(film, user);
         return film;
     }
 

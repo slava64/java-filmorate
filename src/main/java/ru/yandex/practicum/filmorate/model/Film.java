@@ -10,6 +10,15 @@ import java.util.Set;
 
 @Data
 public class Film {
+    public Film(Long id, String name, String description, LocalDate releaseDate, int duration, int rate) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.rate = rate;
+    }
+
     private Long id;
 
     @NotNull @NotBlank
@@ -24,5 +33,12 @@ public class Film {
     @NotNull @Min(1)
     private int duration;
 
+    private int rate;
+
     private Set<Long> likes = new HashSet<>();
+
+    @NotNull
+    private Mpa mpa;
+
+    private Set<Genre> genres;
 }
