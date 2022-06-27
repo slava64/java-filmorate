@@ -79,59 +79,23 @@ class UserDbStorageTest {
 
     @Test
     @Order(4)
-    public void testAddFriend_4() {
-        User newUser = new User(
+    public void testFindAll_4() {
+        User user2 = new User(
                 (long) 2,
                 "friend@test.com",
                 "friend",
                 "Friend",
                 LocalDate.of(1993, 6, 1)
         );
+        userStorage.add(user2);
 
-        userStorage.add(newUser);
-        User friend = userStorage.findOne((long) 2).orElse(null);
-        assertThat(friend).isNotNull();
-
-        User user = userStorage.findOne((long) 1).orElse(null);
-        assertThat(user).isNotNull();
-
-        userStorage.addFriend(user, friend);
-
-        friend = userStorage.findOne((long) 2).orElse(null);
-        assertThat(friend).isNotNull();
-
-        user = userStorage.findOne((long) 1).orElse(null);
-        assertThat(user).isNotNull();
-
-        assertThat(user.getFriends().size()).isEqualTo(1);
-        assertThat(friend.getFriends().size()).isEqualTo(0);
-    }
-
-    @Test
-    @Order(5)
-    public void testDeleteFriend_5() {
-        User friend = userStorage.findOne((long) 2).orElse(null);
-        assertThat(friend).isNotNull();
-
-        User user = userStorage.findOne((long) 1).orElse(null);
-        assertThat(user).isNotNull();
-
-        userStorage.deleteFriend(user, friend);
-
-        assertThat(user.getFriends().size()).isEqualTo(0);
-        assertThat(friend.getFriends().size()).isEqualTo(0);
-    }
-
-    @Test
-    @Order(6)
-    public void testFindAll_6() {
         Map<Long, User> users = userStorage.findAll();
         assertThat(users.size()).isEqualTo(2);
     }
 
     @Test
-    @Order(7)
-    public void testDelete_7() {
+    @Order(5)
+    public void testDelete_5() {
         User user = userStorage.findOne((long) 2).orElse(null);
         assertThat(user).isNotNull();
 

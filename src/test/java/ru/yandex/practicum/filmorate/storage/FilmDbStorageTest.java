@@ -10,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -24,7 +23,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class FilmDbStorageTest {
     private final FilmDbStorage filmStorage;
     private final MpaDbStorage mpaStorage;
-    private final UserDbStorage userStorage;
 
     @Test
     @Order(1)
@@ -95,7 +93,7 @@ public class FilmDbStorageTest {
 
     @Test
     @Order(4)
-    public void testFilndAll_4() {
+    public void testFindAll_4() {
         Mpa mpa = mpaStorage.findOne((long) 1).orElse(null);
         assertThat(mpa).isNotNull();
 
@@ -120,51 +118,7 @@ public class FilmDbStorageTest {
 
     @Test
     @Order(5)
-    public void testAddLike_5() {
-        User user = new User(
-                (long) 1,
-                "test@test.com",
-                "test",
-                "Name",
-                LocalDate.of(1991, 6, 1)
-        );
-
-        userStorage.add(user);
-
-        User addedUser = userStorage.findOne((long) 1).orElse(null);
-        assertThat(addedUser).isNotNull();
-
-        Film film = filmStorage.findOne((long) 1).orElse(null);
-        assertThat(film).isNotNull();
-
-        filmStorage.addLike(film, addedUser);
-
-        Film likedFilm = filmStorage.findOne((long) 1).orElse(null);
-        assertThat(film).isNotNull();
-        assertThat(likedFilm.getLikes()).isNotNull();
-        assertThat(likedFilm.getLikes().size()).isEqualTo(1);
-    }
-
-    @Test
-    @Order(6)
-    public void testDeleteLike_6() {
-        User user = userStorage.findOne((long) 1).orElse(null);
-        assertThat(user).isNotNull();
-
-        Film film = filmStorage.findOne((long) 1).orElse(null);
-        assertThat(film).isNotNull();
-
-        filmStorage.deleteLike(film, user);
-
-        Film likedFilm = filmStorage.findOne((long) 1).orElse(null);
-        assertThat(film).isNotNull();
-        assertThat(likedFilm.getLikes()).isNotNull();
-        assertThat(likedFilm.getLikes().size()).isEqualTo(0);
-    }
-
-    @Test
-    @Order(7)
-    public void testDelete_7() {
+    public void testDelete_5() {
         Film film = filmStorage.findOne((long) 2).orElse(null);
         assertThat(film).isNotNull();
 

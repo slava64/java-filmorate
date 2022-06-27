@@ -18,11 +18,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void addFriend(User user, User friend) {
-        user.getFriends().add(friend.getId());
-    }
-
-    @Override
     public void update(User user) {
         users.put(user.getId(), user);
     }
@@ -30,11 +25,6 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public Boolean delete(Long id) {
         users.remove(id);
-        return true;
-    }
-
-    public Boolean deleteFriend(User user, User friend) {
-        user.getFriends().remove(friend.getId());
         return true;
     }
 
