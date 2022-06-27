@@ -11,7 +11,7 @@ public interface UserStorage {
     // Обновляет пользователя
     public void update(User user);
     // Удаляет пользователя
-    public User delete(Long id);
+    public Boolean delete(Long id);
     // Возвращает всех пользователей
     public Map<Long, User> findAll();
     // Возвращает одного пользователя
