@@ -24,17 +24,6 @@ public class UserDbStorage implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void addFriend(User user, User friend) {
-        String sqlQuery = "insert into friends(user_id, friend_id) " +
-                "values (?, ?)";
-        jdbcTemplate.update(
-                sqlQuery,
-                user.getId(),
-                friend.getId()
-        );
-        user.getFriends().add(friend.getId());
-    }
-
     @Override
     public void add(User user) {
         String sqlQuery = "insert into users(email, login, name, birthday) " +
@@ -73,13 +62,6 @@ public class UserDbStorage implements UserStorage {
     public Boolean delete(Long id) {
         String sqlQuery = "delete from users where id = ?";
         return jdbcTemplate.update(sqlQuery, id) > 0;
-    }
-
-    @Override
-    public Boolean deleteFriend(User user, User friend) {
-        user.getFriends().remove(friend.getId());
-        String sqlQuery = "delete from friends where user_id = ? and friend_id = ?";
-        return jdbcTemplate.update(sqlQuery, user.getId(), friend.getId()) > 0;
     }
 
     @Override

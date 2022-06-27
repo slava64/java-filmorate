@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReleaseDateException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -19,11 +19,13 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(FilmStorage filmStorage, UserService userService, LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.likeStorage = likeStorage;
     }
 
     public Collection<Film> findAll() {
@@ -65,14 +67,14 @@ public class FilmService {
     public Film addLike(Long id, Long userId) {
         User user = userService.findOne(userId);
         Film film = findOne(id);
-        filmStorage.addLike(film, user);
+        likeStorage.add(film, user);
         return film;
     }
 
     public Film deleteLike(Long id, Long userId) {
         User user = userService.findOne(userId);
         Film film = findOne(id);
-        filmStorage.deleteLike(film, user);
+        likeStorage.delete(film, user);
         return film;
     }
 

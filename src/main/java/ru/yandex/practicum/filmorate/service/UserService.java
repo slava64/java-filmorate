@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -15,10 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FriendStorage friendStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FriendStorage friendStorage) {
         this.userStorage = userStorage;
+        this.friendStorage = friendStorage;
     }
 
     public Collection<User> findAll() {
@@ -72,14 +75,14 @@ public class UserService {
     public User addFriend(Long id, Long friendId) {
         User user = findOne(id);
         User friend = findOne(friendId);
-        userStorage.addFriend(user, friend);
+        friendStorage.add(user, friend);
         return user;
     }
 
     public User deleteFriend(Long id, Long friendId) {
         User user = findOne(id);
         User friend = findOne(friendId);
-        userStorage.deleteFriend(user, friend);
+        friendStorage.delete(user, friend);
         return user;
     }
 

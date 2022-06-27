@@ -43,24 +43,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Film film, User user) {
-        if (film.getLikes() != null) {
-            film.getLikes().add(user.getId());
-        } else {
-            Set<Long> likes = new HashSet<>();
-            likes.add(user.getId());
-            film.setLikes(likes);
-        }
-        String sqlQuery = "insert into likes(film_id, user_id) " +
-                "values (?, ?)";
-        jdbcTemplate.update(
-                sqlQuery,
-                film.getId(),
-                user.getId()
-        );
-    }
-
-    @Override
     public void update(Film film) {
         String sqlQuery = "update films set " +
                 "name = ?, description = ?, release_date = ?, duration = ?, rate =?, mpa_id = ?" +
@@ -81,18 +63,6 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Boolean delete(Long id) {
         return jdbcTemplate.update("delete from films where id = ?", id) > 0;
-    }
-
-    @Override
-    public Boolean deleteLike(Film film, User user) {
-        if (film.getLikes() != null) {
-            film.getLikes().remove(user.getId());
-        }
-        return jdbcTemplate.update(
-                "delete from likes where film_id = ? and user_id = ?",
-                film.getId(),
-                user.getId()
-        ) > 0;
     }
 
     @Override
