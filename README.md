@@ -14,7 +14,7 @@ SELECT * FROM films WHERE id = 1
 ~~~~sql
 SELECT * FROM users
 ~~~~
-- Выборка одного пользователя с id = 1
+- Выборка одного пользователя с id = 1;
 ~~~~sql
 SELECT * FROM users WHERE id = 1
 ~~~~
