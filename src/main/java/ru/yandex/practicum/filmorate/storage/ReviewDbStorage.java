@@ -8,8 +8,6 @@ public class ReviewDbStorage implements ReviewStorage{
     @Override
     public Review create(Review review) {
 
-
-
         return null;
     }
 
