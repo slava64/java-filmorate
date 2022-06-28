@@ -67,4 +67,5 @@ create table IF NOT EXISTS Reviews_likes
     review_id integer references Reviews(id) on delete cascade ,
     user_id integer references users (id) on delete cascade,
     is_useful boolean not null
+
 );

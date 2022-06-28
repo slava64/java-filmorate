@@ -9,4 +9,5 @@ public interface ReviewStorage {
     Review update(Review review);
 
     void remove(int id);
+
 }
