@@ -8,4 +8,5 @@ public class ReviewLike {
     private int reviewId;
     private int userId;
     private boolean positive;
+
 }

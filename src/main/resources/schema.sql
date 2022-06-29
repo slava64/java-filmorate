@@ -68,6 +68,7 @@ VALUES ('Комедия'), ('Драма'), ('Мультфильм'), ('Трил�
 INSERT INTO mpa (name)
 VALUES ('G'), ('PG'), ('PG-13'), ('R'), ('NC-17');
 
+
 -- INSERT INTO USERS
 -- (EMAIL, LOGIN, NAME, BIRTHDAY)
 -- VALUES ('test@test.com', 'test1', 'user1', '1999-11-5'),
