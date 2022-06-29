@@ -66,6 +66,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Map<Long, Film> findAll() {
+
         return jdbcTemplate.query("select " +
                 "f.id, " +
                 "f.name, " +

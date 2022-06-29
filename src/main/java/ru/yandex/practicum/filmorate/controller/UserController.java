@@ -5,6 +5,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,9 +20,11 @@ import java.util.Set;
 @Validated
 public class UserController {
     private final UserService userService;
+    private final FilmService filmService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FilmService filmService) {
         this.userService = userService;
+        this.filmService = filmService;
     }
 
     @GetMapping
@@ -36,7 +39,7 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations")
     public Set<Film> findRecommendations(@PathVariable("id") Long id) {
-        return userService.findRecommendations(id);
+        return filmService.findRecommendations(id);
     }
 
     @GetMapping("/{id}/friends")
