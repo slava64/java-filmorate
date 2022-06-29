@@ -3,13 +3,16 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
@@ -17,9 +20,11 @@ import java.util.List;
 @Validated
 public class UserController {
     private final UserService userService;
+    private final FilmService filmService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FilmService filmService) {
         this.userService = userService;
+        this.filmService = filmService;
     }
 
     @GetMapping
@@ -30,6 +35,11 @@ public class UserController {
     @GetMapping("/{id}")
     public User findOne(@PathVariable("id") Long id) {
         return userService.findOne(id);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public Set<Film> findRecommendations(@PathVariable("id") Long id) {
+        return filmService.findRecommendations(id);
     }
 
     @GetMapping("/{id}/friends")
