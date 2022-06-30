@@ -111,7 +111,7 @@ public class FilmService {
         return result;
     }
 
-    private List<Long> findMatchedUsersId(List<Film> films) {
+    private List<Long> findMatchedUsersId(List<Film> films, Long id) {
         log.debug("findMatchedUsersId case, films = {}", films.toString());
 
         List<Long> result = new LinkedList<>();
@@ -126,7 +126,7 @@ public class FilmService {
                 }
         }
         List<Map.Entry<Long,Integer>> entries =  commonLiked.entrySet()
-                .stream().filter(e -> e.getValue() > 1)
+                .stream().filter(e -> !e.getKey().equals(id))
                 .sorted(Comparator.comparingInt(Map.Entry::getValue))
                 .collect(Collectors.toList());
         for (Map.Entry<Long,Integer> entry : entries) {
@@ -149,7 +149,7 @@ public class FilmService {
     public Set<Film> findRecommendations(Long id) {
         log.debug("findRecommendations case, id = {}",id);
         List<Film> films =  findLikedByTarget(id);
-        List<Long> matchedUsers = findMatchedUsersId(films);
+        List<Long> matchedUsers = findMatchedUsersId(films, id);
         return getTopOverCrossingFilms(films, matchedUsers);
     }
 
