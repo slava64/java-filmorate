@@ -23,6 +23,12 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<?> handleDirectorNotFoundException(final DirectorNotFoundException e) {
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<?> handleUserNotFoundException(final UserNotFoundException e) {
         log.warn(e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

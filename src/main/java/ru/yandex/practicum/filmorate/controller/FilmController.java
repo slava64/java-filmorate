@@ -12,6 +12,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -86,5 +87,14 @@ public class FilmController {
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
         return filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getSortedFilmsByDirectorId(
+            @PathVariable Long directorId,
+            @RequestParam Optional<String> sortBy
+    ){
+        Collection<Film> f =  filmService.getSortedFilmsByDirectorId(directorId, sortBy);
+        return f;
     }
 }
