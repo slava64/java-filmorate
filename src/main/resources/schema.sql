@@ -34,25 +34,39 @@ create table if not exists films (
     release_date timestamp,
     duration int,
     rate int,
-    mpa_id int REFERENCES mpa (id),
+    mpa_id int REFERENCES mpa (id)
+    on delete cascade
+    on update cascade,
     CONSTRAINT fk_films_mpa
     FOREIGN KEY (mpa_id)
     REFERENCES mpa (id)
 );
 
 create table if not exists films_genres (
-    film_id int REFERENCES films(id),
+    film_id int REFERENCES films(id)
+    on delete cascade
+    on update cascade,
     genre_id int REFERENCES genres(id)
+    on delete cascade
+    on update cascade
 );
 
 create table if not exists friends (
-    user_id int REFERENCES users(id),
+    user_id int REFERENCES users(id)
+    on delete cascade
+    on update cascade,
     friend_id int REFERENCES users(id)
+    on delete cascade
+    on update cascade
 );
 
 create table if not exists likes (
-    film_id int REFERENCES films(id),
+    film_id int REFERENCES films(id)
+    on delete cascade
+    on update cascade,
     user_id int REFERENCES users(id)
+    on delete cascade
+    on update cascade
 );
 
 create table if not exists directors (
