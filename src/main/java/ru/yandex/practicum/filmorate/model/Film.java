@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -41,4 +42,6 @@ public class Film {
     private Mpa mpa;
 
     private Set<Genre> genres;
+
+    private List<Director> directors;
 }

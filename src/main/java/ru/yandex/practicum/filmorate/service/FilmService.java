@@ -86,6 +86,18 @@ public class FilmService {
         }
     }
 
+    public Collection<Film> getSortedFilmsByDirectorId(Long directorId, Optional<String> sortBy) {
+        Collection<Film> films = null;
+        if (sortBy.isPresent()) {
+            if (sortBy.get().equals("year")) {
+                films = filmStorage.getYearSortedFilmsByDirectorId(directorId);
+            } else if (sortBy.get().equals("likes")) {
+                films =  filmStorage.getLikeSortedFilmsByDirectorId(directorId);
+            }
+        }
+        return films;
+    }
+
 
     private Set<Film> getTopOverCrossingFilms(List<Film> films, List<Long> ids) {
         log.debug("getTopOverCrossingFilms case, films = {}, ids = {}", films.toString(), ids.toString());
