@@ -15,7 +15,6 @@ import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 @Slf4j
-
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
@@ -99,6 +98,7 @@ public class FilmService {
     }
 
 
+
     private Set<Film> getTopOverCrossingFilms(List<Film> films, List<Long> ids) {
         log.debug("getTopOverCrossingFilms case, films = {}, ids = {}", films.toString(), ids.toString());
 
@@ -135,6 +135,7 @@ public class FilmService {
         return result;
     }
 
+
     private List<Film> findLikedByTarget(Long id) {
         log.debug("findLikedByTarget case, id = {}",id);
 
@@ -153,4 +154,14 @@ public class FilmService {
         return getTopOverCrossingFilms(films, matchedUsers);
     }
 
+
+    public Collection<Film> findCommon(Long userId, Long friendId) {
+        List<Film> userFilms = new ArrayList<>(findLikedByTarget(userId));
+        List<Film> friendFilms = new ArrayList<>(findLikedByTarget(friendId));
+        return userFilms
+                .stream()
+                .filter(friendFilms::contains)
+                .sorted(Comparator.comparingInt(Film::getRate))
+                .collect(Collectors.toCollection(LinkedList::new));
+    }
 }
