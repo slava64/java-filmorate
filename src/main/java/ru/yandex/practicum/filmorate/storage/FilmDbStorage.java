@@ -101,12 +101,14 @@ public class FilmDbStorage implements FilmStorage {
                             if (film.getLikes() != null) {
                                 film.getLikes().add(rs.getLong("like_user_id"));
                             }
-                            Genre genre = new Genre(
-                                    rs.getLong("genre_id"),
-                                    rs.getString("genre_name")
-                            );
+                            if (film.getGenres() != null) {
+                                Genre genre = new Genre(
+                                        rs.getLong("genre_id"),
+                                        rs.getString("genre_name")
+                                );
 
-                            film.getGenres().add(genre);
+                                film.getGenres().add(genre);
+                            }
                             film.setDirectors(getListDirectorsByFilmId(rs.getLong("id")));
 
                         } else {
@@ -154,7 +156,9 @@ public class FilmDbStorage implements FilmStorage {
                                 rs.getLong("genre_id"),
                                 rs.getString("genre_name")
                         );
-                        film.getGenres().add(genre);
+                        if (film.getGenres() != null) {
+                            film.getGenres().add(genre);
+                        }
                     }
 
                     film.setDirectors(getListDirectorsByFilmId(film.getId()));
