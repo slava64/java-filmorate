@@ -31,10 +31,10 @@ public class FilmController {
         return filmService.findAll();
     }
 
-    @GetMapping("/common?userId={userId}&friendId={friendId}")
+    @GetMapping("/common")
     public Collection<Film> findCommon(
-            @PathVariable("userId") Long userId,
-            @PathVariable("friendId") Long friendId) {
+            @RequestParam Long userId,
+            @RequestParam Long friendId) {
         return filmService.findCommon(userId, friendId);
     }
 
