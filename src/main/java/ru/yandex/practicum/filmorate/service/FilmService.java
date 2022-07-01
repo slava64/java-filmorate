@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ReleaseDateException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.EventDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
@@ -68,6 +70,12 @@ public class FilmService {
         User user = userService.findOne(userId);
         Film film = findOne(id);
         likeStorage.add(film, user);
+        EventDbStorage.addEvent(
+                user.getId(),
+                film.getId(),
+                Event.EventType.LIKE,
+                Event.EventOperation.ADD
+        );
         return film;
     }
 
@@ -75,6 +83,12 @@ public class FilmService {
         User user = userService.findOne(userId);
         Film film = findOne(id);
         likeStorage.delete(film, user);
+        EventDbStorage.addEvent(
+                user.getId(),
+                film.getId(),
+                Event.EventType.LIKE,
+                Event.EventOperation.REMOVE
+        );
         return film;
     }
 

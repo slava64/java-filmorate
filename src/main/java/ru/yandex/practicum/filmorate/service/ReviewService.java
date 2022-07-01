@@ -4,15 +4,15 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ReviewsNotFoundExceptions;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.storage.EventDbStorage;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +23,30 @@ public class ReviewService {
     private final FilmStorage filmStorage;
 
     public Review create(Review review) {
-
         if (userStorage.findOne(review.getUserId()).isEmpty()) {
             throw new UserNotFoundException((String.format("Пользователь %d не найден", review.getUserId())));
         } else if (filmStorage.findOne(review.getFilmId()).isEmpty()) {
             throw new FilmNotFoundException((String.format("Фильм не найден %d не найден", review.getUserId())));
         }
-
-        return reviewStorage.create(review);
+        Review createdReview = reviewStorage.create(review);
+        EventDbStorage.addEvent(
+                createdReview.getUserId(),
+                createdReview.getId(),
+                Event.EventType.REVIEW,
+                Event.EventOperation.ADD
+        );
+        return createdReview;
     }
 
     public Review update(Review review) {
-        return reviewStorage.update(review);
+        Review updatedReview = reviewStorage.update(review);
+        EventDbStorage.addEvent(
+                updatedReview.getUserId(),
+                updatedReview.getId(),
+                Event.EventType.REVIEW,
+                Event.EventOperation.UPDATE
+        );
+        return updatedReview;
     }
 
     public Review getById(Long id) {
@@ -43,8 +55,14 @@ public class ReviewService {
     }
 
     public void deleteById(Long id) {
-
+        Review review = reviewStorage.getById(id);
         reviewStorage.remove(id);
+        EventDbStorage.addEvent(
+                review.getUserId(),
+                review.getId(),
+                Event.EventType.REVIEW,
+                Event.EventOperation.REMOVE
+        );
     }
 
     public Collection<Review> getAll(Long id, int count) {
