@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,12 +20,12 @@ public class ReviewController {
     private final ReviewService service;
 
     @PostMapping()
-    public Review post(@RequestBody Review review) {
+    public Review post(@Valid @RequestBody Review review) {
         return service.create(review);
     }
 
     @PutMapping()
-    public Review put(@RequestBody Review review) {
+    public Review put(@Valid @RequestBody Review review) {
         return service.update(review);
     }
 
@@ -45,23 +46,23 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Review addLike(@PathVariable Long id, @PathVariable Long userId) {
-        return service.addLike(id, userId);
+    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+         service.addLike(id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
-    public Review addDislike(@PathVariable Long id, @PathVariable Long userId) {
-        return service.addDislike(id, userId);
+    public void addDislike(@PathVariable Long id, @PathVariable Long userId) {
+         service.addDislike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Review removeLike(@PathVariable Long id, @PathVariable Long userId) {
-        return service.removelike(id, userId);
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+         service.removelike(id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    public Review removeDislike(@PathVariable Long id, @PathVariable Long userId) {
-        return service.removeDislike(id, userId);
+    public void removeDislike(@PathVariable Long id, @PathVariable Long userId) {
+         service.removeDislike(id, userId);
     }
 
 

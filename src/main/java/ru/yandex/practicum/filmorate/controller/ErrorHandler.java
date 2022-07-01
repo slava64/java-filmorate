@@ -57,4 +57,10 @@ public class ErrorHandler {
         log.warn(e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<?> handleReviewsNotFoundExceptions(final ReviewsNotFoundExceptions e) {
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }
