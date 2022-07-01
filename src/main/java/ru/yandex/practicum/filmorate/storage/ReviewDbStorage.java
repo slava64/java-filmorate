@@ -7,12 +7,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ReviewsNotFoundExceptions;
 import ru.yandex.practicum.filmorate.model.Review;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.Optional;
 
 
 @Slf4j
@@ -47,6 +50,8 @@ public class ReviewDbStorage implements ReviewStorage {
         Review filmReview = jdbcTemplate.queryForObject(sql, this::reviewRows, keyHolder.getKey());
 
         return filmReview;
+
+
     }
 
     @Override
@@ -59,7 +64,7 @@ public class ReviewDbStorage implements ReviewStorage {
         if (check != 0) {
             return getById(review.getId());
         }
-        return null;
+        throw new ReviewsNotFoundExceptions("Обзор не найден");
     }
 
     @Override
@@ -67,20 +72,21 @@ public class ReviewDbStorage implements ReviewStorage {
 
         String getReview = "SELECT * FROM REVIEWS WHERE ID=?";
 
+        Review review = null;
         try {
-            return jdbcTemplate.queryForObject(getReview, this::reviewRows, id);
+            review = jdbcTemplate.queryForObject(getReview, this::reviewRows, id);
         } catch (DataAccessException e) {
-            e.printStackTrace();
+            throw new ReviewsNotFoundExceptions("Обзор не найден");
         }
-        return null;
+            return review;
     }
-
 
     @Override
     public void remove(Long id) {
 
         String delete = "DELETE FROM REVIEWS WHERE ID=?";
         jdbcTemplate.update(delete, id);
+
     }
 
     @Override
@@ -97,37 +103,35 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review addLike(Long reviewID, Long userId) {
+    public void addLike(Long reviewID, Long userId) {
 
         jdbcTemplate.update(addLike, reviewID, userId, true);
         jdbcTemplate.update(upRate, reviewID);
 
-        return getById(reviewID);
     }
 
     @Override
-    public Review addDislike(Long reviewId, Long userId) {
+    public void addDislike(Long reviewId, Long userId) {
 
         jdbcTemplate.update(addLike, reviewId, userId, false);
         jdbcTemplate.update(downRate, reviewId);
 
-        return getById(reviewId);
     }
 
     @Override
-    public Review removeLike(Long userId, Long reviewId) {
+    public void removeLike(Long userId, Long reviewId) {
 
         jdbcTemplate.update(delete, userId, reviewId);
         jdbcTemplate.update(downRate, reviewId, true);
-        return getById(reviewId);
+
     }
 
     @Override
-    public Review removeDislike(Long userId, Long reviewId) {
+    public void removeDislike(Long userId, Long reviewId) {
 
         jdbcTemplate.update(delete, userId, reviewId);
         jdbcTemplate.update(upRate, reviewId, false);
-        return getById(reviewId);
+
     }
 
     private Review reviewRows(ResultSet rowSet, int rowNum) throws SQLException {

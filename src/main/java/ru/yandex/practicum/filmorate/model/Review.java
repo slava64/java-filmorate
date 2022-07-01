@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
 public class Review {
 
     private Long id;
-    @NotEmpty
+    @NotBlank
     private String content;
     @NotNull
     private Boolean isPositive;
@@ -20,7 +21,6 @@ public class Review {
     @NotNull
     private Long filmId;
     private Integer useful;
-
 
 
 }
