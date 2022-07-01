@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -21,10 +23,12 @@ import java.util.Set;
 public class UserController {
     private final UserService userService;
     private final FilmService filmService;
+    private final EventService eventService;
 
-    public UserController(UserService userService, FilmService filmService) {
+    public UserController(UserService userService, FilmService filmService, EventService eventService) {
         this.userService = userService;
         this.filmService = filmService;
+        this.eventService = eventService;
     }
 
     @GetMapping
@@ -53,6 +57,13 @@ public class UserController {
             @PathVariable("otherId") Long otherId
     ) {
         return userService.findAllFriendsCommon(id, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<Event> findAllEvents(
+            @PathVariable("id") Long id
+    ) {
+        return eventService.findAll();
     }
 
     @PostMapping
