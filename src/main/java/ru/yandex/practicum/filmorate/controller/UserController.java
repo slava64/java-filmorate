@@ -63,7 +63,7 @@ public class UserController {
     public Collection<Event> findAllEvents(
             @PathVariable("id") Long id
     ) {
-        return eventService.findAll();
+        return eventService.findAllByUserId(id);
     }
 
     @PostMapping

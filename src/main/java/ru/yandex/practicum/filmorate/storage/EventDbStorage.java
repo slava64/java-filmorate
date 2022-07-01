@@ -74,14 +74,14 @@ public class EventDbStorage implements EventStorage {
     }
 
     @Override
-    public Map<Long, Event> findAll() {
-        return jdbcTemplate.query("select * from events", (ResultSet rs) -> {
+    public Map<Long, Event> findAllByUserId(Long id) {
+        return jdbcTemplate.query("select * from events where user_id = ?", (ResultSet rs) -> {
             Map <Long, Event> results = new HashMap<>();
             while (rs.next()) {
                 results.put(rs.getLong("event_id"), mapRow(rs, rs.getRow()));
             }
             return results;
-        });
+        }, id);
     }
 
     private Event mapRow(ResultSet resultSet, int rowNum) throws SQLException {
