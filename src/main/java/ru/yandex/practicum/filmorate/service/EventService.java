@@ -16,7 +16,7 @@ public class EventService {
         this.eventStorage = eventStorage;
     }
 
-    public Collection<Event> findAll() {
-        return eventStorage.findAll().values();
+    public Collection<Event> findAllByUserId(Long id) {
+        return eventStorage.findAllByUserId(id).values();
     }
 }

@@ -60,7 +60,6 @@ public class UserService {
     public User create(User user) {
         validateUser(user);
         userStorage.add(user);
-        EventDbStorage.addEvent(user.getId(), 1L, Event.EventType.FRIEND, Event.EventOperation.ADD);
         return user;
     }
 
@@ -81,6 +80,12 @@ public class UserService {
         User user = findOne(id);
         User friend = findOne(friendId);
         friendStorage.add(user, friend);
+        EventDbStorage.addEvent(
+                user.getId(),
+                friend.getId(),
+                Event.EventType.FRIEND,
+                Event.EventOperation.ADD
+        );
         return user;
     }
 
@@ -88,6 +93,12 @@ public class UserService {
         User user = findOne(id);
         User friend = findOne(friendId);
         friendStorage.delete(user, friend);
+        EventDbStorage.addEvent(
+                user.getId(),
+                friend.getId(),
+                Event.EventType.FRIEND,
+                Event.EventOperation.REMOVE
+        );
         return user;
     }
 

@@ -8,5 +8,5 @@ public interface EventStorage {
     // Новое событие
     public void add(Event event);
     // Все записи
-    public Map<Long, Event> findAll();
+    public Map<Long, Event> findAllByUserId(Long id);
 }
