@@ -22,4 +22,5 @@ public interface FilmStorage {
     Collection<Film> getYearSortedFilmsByDirectorId(long id);
     // Возвращает фильмы по id режисера отсортированные по лайкам
     Collection<Film> getLikeSortedFilmsByDirectorId(long id);
+    Map<Long, Film> getPopularFilms(Integer count, Integer genreId, Integer year);
 }

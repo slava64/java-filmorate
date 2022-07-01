@@ -171,6 +171,66 @@ public class FilmDbStorage implements FilmStorage {
             return Optional.empty();
         }
     }
+    @Override
+    public Map<Long, Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        String sqlGetFilmsWithGenre = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
+                " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
+                " from films as f" +
+                " left join mpa as m on f.mpa_id = m.id " +
+                " left join likes as l on f.id = l.film_id " +
+                " left join films_genres as fg on f.id = fg.film_id " +
+                " left join genres as g on fg.genre_id  = g.id" +
+                " WHERE fg.genre_id = ?";
+        String sqlGetFilmsForYear = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
+                " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
+                " from films as f" +
+                " left join mpa as m on f.mpa_id = m.id " +
+                " left join likes as l on f.id = l.film_id " +
+                " left join films_genres as fg on f.id = fg.film_id " +
+                " left join genres as g on fg.genre_id  = g.id" +
+                " WHERE extract(year from f.RELEASE_DATE) = ?";
+        if (Objects.nonNull(year)) {
+            return jdbcTemplate.query(sqlGetFilmsForYear, (ResultSet rs) -> {
+                Map<Long, Film> results = new HashMap<>();
+                while (rs.next()) {
+                    if (results.containsKey(rs.getLong("id"))) {
+                        Film film = results.get(rs.getLong("id"));
+                        if (film.getLikes() != null) {
+                            film.getLikes().add(rs.getLong("like_user_id"));
+                        }
+                        Genre genre = new Genre(
+                                rs.getLong("genre_id"),
+                                rs.getString("genre_name")
+                        );
+                        film.getGenres().add(genre);
+                    } else {
+                        results.put(rs.getLong("id"), mapRow(rs, rs.getRow()));
+                    }
+                }
+                return results;
+            }, year);
+        } else {
+            return jdbcTemplate.query(sqlGetFilmsWithGenre, (ResultSet rs) -> {
+                Map<Long, Film> results = new HashMap<>();
+                while (rs.next()) {
+                    if (results.containsKey(rs.getLong("id"))) {
+                        Film film = results.get(rs.getLong("id"));
+                        if (film.getLikes() != null) {
+                            film.getLikes().add(rs.getLong("like_user_id"));
+                        }
+                        Genre genre = new Genre(
+                                rs.getLong("genre_id"),
+                                rs.getString("genre_name")
+                        );
+                        film.getGenres().add(genre);
+                    } else {
+                        results.put(rs.getLong("id"), mapRow(rs, rs.getRow()));
+                    }
+                }
+                return results;
+            }, genreId);
+        }
+    }
 
     private Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Film film = new Film(

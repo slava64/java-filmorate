@@ -17,6 +17,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         film.setId(id++);
         films.put(film.getId(), film);
     }
+    @Override
+    public Map<Long, Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        return null;
+    }
 
     @Override
     public void update(Film film) {
