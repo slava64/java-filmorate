@@ -60,7 +60,6 @@ public class UserService {
     public User create(User user) {
         validateUser(user);
         userStorage.add(user);
-        EventDbStorage.addEvent(user.getId(), 1L, Event.EventType.FRIEND, Event.EventOperation.ADD);
         return user;
     }
 
