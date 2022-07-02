@@ -1,22 +1,26 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.EventDbStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-
 @Service
 public class UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendStorage;
+
 
     @Autowired
     public UserService(UserStorage userStorage, FriendStorage friendStorage) {
@@ -76,6 +80,12 @@ public class UserService {
         User user = findOne(id);
         User friend = findOne(friendId);
         friendStorage.add(user, friend);
+        EventDbStorage.addEvent(
+                user.getId(),
+                friend.getId(),
+                Event.EventType.FRIEND,
+                Event.EventOperation.ADD
+        );
         return user;
     }
 
@@ -83,6 +93,12 @@ public class UserService {
         User user = findOne(id);
         User friend = findOne(friendId);
         friendStorage.delete(user, friend);
+        EventDbStorage.addEvent(
+                user.getId(),
+                friend.getId(),
+                Event.EventType.FRIEND,
+                Event.EventOperation.REMOVE
+        );
         return user;
     }
 
@@ -101,4 +117,5 @@ public class UserService {
         }
         return friendsCommon;
     }
+
 }

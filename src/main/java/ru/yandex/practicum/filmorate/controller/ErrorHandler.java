@@ -23,6 +23,12 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<?> handleDirectorNotFoundException(final DirectorNotFoundException e) {
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<?> handleUserNotFoundException(final UserNotFoundException e) {
         log.warn(e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -50,5 +56,11 @@ public class ErrorHandler {
     public ResponseEntity<?> handleThrowable(final Throwable e) {
         log.warn(e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<?> handleReviewsNotFoundExceptions(final ReviewsNotFoundExceptions e) {
+        log.warn(e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
