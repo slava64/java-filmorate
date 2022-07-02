@@ -82,4 +82,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         return sortedFilms;
     }
+    
+    @Override
+    public Map<Long, Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        return null;
+    }
 }
