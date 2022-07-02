@@ -42,6 +42,19 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        if (Objects.nonNull(genreId) || Objects.nonNull(year)) {
+            return filmStorage.getPopularFilms(count, genreId, year)
+                    .values()
+                    .stream()
+                    .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                    .limit(count)
+                    .collect(Collectors.toList());
+
+        }
+        return findAllPopular(count);
+    }
+
     public Film findOne(Long id) {
         return filmStorage.findOne(id).orElseThrow(
                 () -> new FilmNotFoundException(String.format("Фильм %d не найден", id)));
