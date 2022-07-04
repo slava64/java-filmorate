@@ -36,6 +36,24 @@ public class FilmDbStorage implements FilmStorage {
             "left join directors d on df.director_id = d.id " +
             "where df.film_id=? group by df.film_id";
 
+    String SQL_GET_FILMS_WITH_GENRE = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
+            " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
+            " from films as f" +
+            " left join mpa as m on f.mpa_id = m.id " +
+            " left join likes as l on f.id = l.film_id " +
+            " left join films_genres as fg on f.id = fg.film_id " +
+            " left join genres as g on fg.genre_id  = g.id" +
+            " WHERE fg.genre_id = ?";
+
+    String SQL_GET_FILMS_WITH_YEAR = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
+            " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
+            " from films as f" +
+            " left join mpa as m on f.mpa_id = m.id " +
+            " left join likes as l on f.id = l.film_id " +
+            " left join films_genres as fg on f.id = fg.film_id " +
+            " left join genres as g on fg.genre_id  = g.id" +
+            " WHERE extract(year from f.RELEASE_DATE) = ?";
+
     private final JdbcTemplate jdbcTemplate;
     private Long id = Long.valueOf(1);
 
@@ -138,24 +156,9 @@ public class FilmDbStorage implements FilmStorage {
     }
     @Override
     public Map<Long, Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
-        String sqlGetFilmsWithGenre = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
-                " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
-                " from films as f" +
-                " left join mpa as m on f.mpa_id = m.id " +
-                " left join likes as l on f.id = l.film_id " +
-                " left join films_genres as fg on f.id = fg.film_id " +
-                " left join genres as g on fg.genre_id  = g.id" +
-                " WHERE fg.genre_id = ?";
-        String sqlGetFilmsForYear = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
-                " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
-                " from films as f" +
-                " left join mpa as m on f.mpa_id = m.id " +
-                " left join likes as l on f.id = l.film_id " +
-                " left join films_genres as fg on f.id = fg.film_id " +
-                " left join genres as g on fg.genre_id  = g.id" +
-                " WHERE extract(year from f.RELEASE_DATE) = ?";
+
         if (Objects.nonNull(year)) {
-            return jdbcTemplate.query(sqlGetFilmsForYear, (ResultSet rs) -> {
+            return jdbcTemplate.query(SQL_GET_FILMS_WITH_YEAR, (ResultSet rs) -> {
                 Map<Long, Film> results = new HashMap<>();
                 while (rs.next()) {
                     if (results.containsKey(rs.getLong("id"))) {
@@ -175,7 +178,7 @@ public class FilmDbStorage implements FilmStorage {
                 return results;
             }, year);
         } else {
-            return jdbcTemplate.query(sqlGetFilmsWithGenre, (ResultSet rs) -> {
+            return jdbcTemplate.query(SQL_GET_FILMS_WITH_GENRE, (ResultSet rs) -> {
                 Map<Long, Film> results = new HashMap<>();
                 while (rs.next()) {
                     if (results.containsKey(rs.getLong("id"))) {
