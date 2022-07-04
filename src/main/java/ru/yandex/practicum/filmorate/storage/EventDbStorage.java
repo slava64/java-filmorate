@@ -19,6 +19,9 @@ import java.util.*;
 public class EventDbStorage implements EventStorage {
     private final JdbcTemplate jdbcTemplate;
     private static ApplicationContext applicationContext;
+    String ADD_EVENT_SQL = "insert into events(user_id, entity_id, event_type, operation, timestamp) " +
+            "values (?, ?, ?, ?, ?)";
+    String FIND_ADD_BY_USER_ID_SQL = "select * from events where user_id = ?";
 
     @Autowired
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -61,10 +64,8 @@ public class EventDbStorage implements EventStorage {
     }
 
     public void add(Event event) {
-        String sqlQuery = "insert into events(user_id, entity_id, event_type, operation, timestamp) " +
-                "values (?, ?, ?, ?, ?)";
         jdbcTemplate.update(
-                sqlQuery,
+                ADD_EVENT_SQL,
                 event.getUserId(),
                 event.getEntityId(),
                 event.getEventType().name(),
@@ -75,7 +76,7 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public Map<Long, Event> findAllByUserId(Long id) {
-        return jdbcTemplate.query("select * from events where user_id = ?", (ResultSet rs) -> {
+        return jdbcTemplate.query(FIND_ADD_BY_USER_ID_SQL, (ResultSet rs) -> {
             Map <Long, Event> results = new HashMap<>();
             while (rs.next()) {
                 results.put(rs.getLong("event_id"), mapRow(rs, rs.getRow()));

@@ -102,7 +102,7 @@ public class FilmController {
             @PathVariable Long directorId,
             @RequestParam Optional<String> sortBy
     ){
-        Collection<Film> f =  filmService.getSortedFilmsByDirectorId(directorId, sortBy);
-        return f;
+        return filmService.getSortedFilmsByDirectorId(directorId, sortBy);
+
     }
 }

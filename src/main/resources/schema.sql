@@ -52,7 +52,8 @@ create table if not exists films_genres (
     on update cascade,
     genre_id int REFERENCES genres(id)
     on delete cascade
-    on update cascade
+    on update cascade,
+    PRIMARY KEY (film_id, genre_id)
 );
 
 create table if not exists friends (
@@ -61,7 +62,8 @@ create table if not exists friends (
     on update cascade,
     friend_id int REFERENCES users(id)
     on delete cascade
-    on update cascade
+    on update cascade,
+    PRIMARY KEY (user_id, friend_id)
 );
 
 create table if not exists likes (
@@ -70,7 +72,8 @@ create table if not exists likes (
     on update cascade,
     user_id int REFERENCES users(id)
     on delete cascade
-    on update cascade
+    on update cascade,
+    PRIMARY KEY (film_id, user_id)
 );
 
 create table if not exists directors (
@@ -108,7 +111,8 @@ create table if not exists Reviews_likes (
     user_id integer references users (id)
     on delete cascade
     on update cascade,
-    is_useful boolean not null
+    is_useful boolean not null,
+    PRIMARY KEY (review_id, user_id)
     );
 
 create type if not exists enum_event_type AS enum ('LIKE', 'REVIEW', 'FRIEND');

@@ -18,6 +18,42 @@ import java.util.*;
 @Component
 @Primary
 public class FilmDbStorage implements FilmStorage {
+    String GET_LIKE_SORTED_FILM_BY_DIRECTOR_ID_SQL = "SELECT df.film_id  " +
+            "FROM DIRECTOR_FILM df " +
+            "LEFT JOIN films f ON df.FILM_ID = f.ID " +
+            "LEFT JOIN LIKES l ON df.FILM_ID = l.FILM_ID " +
+            "WHERE df.DIRECTOR_ID = ? " +
+            "GROUP BY df.FILM_ID " +
+            "ORDER BY COUNT(l.user_id) ASC";
+
+    String GET_YEAR_SORTED_FILM_BY_DIRECTOR_ID_SQL = "SELECT df.film_id FROM DIRECTOR_FILM df " +
+            "LEFT JOIN films f ON df.FILM_ID = f.ID " +
+            "WHERE  df.director_id =? " +
+            "ORDER BY f.RELEASE_DATE ";
+
+    String GET_LIST_DIRECTORS_BY_FILM_ID_SQL = "select df.DIRECTOR_ID as id, d.name " +
+            "from director_film df " +
+            "left join directors d on df.director_id = d.id " +
+            "where df.film_id=? group by df.film_id";
+
+    String SQL_GET_FILMS_WITH_GENRE = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
+            " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
+            " from films as f" +
+            " left join mpa as m on f.mpa_id = m.id " +
+            " left join likes as l on f.id = l.film_id " +
+            " left join films_genres as fg on f.id = fg.film_id " +
+            " left join genres as g on fg.genre_id  = g.id" +
+            " WHERE fg.genre_id = ?";
+
+    String SQL_GET_FILMS_WITH_YEAR = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
+            " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
+            " from films as f" +
+            " left join mpa as m on f.mpa_id = m.id " +
+            " left join likes as l on f.id = l.film_id " +
+            " left join films_genres as fg on f.id = fg.film_id " +
+            " left join genres as g on fg.genre_id  = g.id" +
+            " WHERE extract(year from f.RELEASE_DATE) = ?";
+
     private final JdbcTemplate jdbcTemplate;
     private Long id = Long.valueOf(1);
 
@@ -120,24 +156,9 @@ public class FilmDbStorage implements FilmStorage {
     }
     @Override
     public Map<Long, Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
-        String sqlGetFilmsWithGenre = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
-                " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
-                " from films as f" +
-                " left join mpa as m on f.mpa_id = m.id " +
-                " left join likes as l on f.id = l.film_id " +
-                " left join films_genres as fg on f.id = fg.film_id " +
-                " left join genres as g on fg.genre_id  = g.id" +
-                " WHERE fg.genre_id = ?";
-        String sqlGetFilmsForYear = "select f.id, f.name, f.description,  f.release_date,  f.duration,  f.rate, " +
-                " m.id as mpa_id, m.name as mpa_name, l.user_id as like_user_id, g.id as genre_id,  g.name as genre_name" +
-                " from films as f" +
-                " left join mpa as m on f.mpa_id = m.id " +
-                " left join likes as l on f.id = l.film_id " +
-                " left join films_genres as fg on f.id = fg.film_id " +
-                " left join genres as g on fg.genre_id  = g.id" +
-                " WHERE extract(year from f.RELEASE_DATE) = ?";
+
         if (Objects.nonNull(year)) {
-            return jdbcTemplate.query(sqlGetFilmsForYear, (ResultSet rs) -> {
+            return jdbcTemplate.query(SQL_GET_FILMS_WITH_YEAR, (ResultSet rs) -> {
                 Map<Long, Film> results = new HashMap<>();
                 while (rs.next()) {
                     if (results.containsKey(rs.getLong("id"))) {
@@ -157,7 +178,7 @@ public class FilmDbStorage implements FilmStorage {
                 return results;
             }, year);
         } else {
-            return jdbcTemplate.query(sqlGetFilmsWithGenre, (ResultSet rs) -> {
+            return jdbcTemplate.query(SQL_GET_FILMS_WITH_GENRE, (ResultSet rs) -> {
                 Map<Long, Film> results = new HashMap<>();
                 while (rs.next()) {
                     if (results.containsKey(rs.getLong("id"))) {
@@ -303,12 +324,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getYearSortedFilmsByDirectorId(long id) {
-        String sql = "SELECT df.film_id FROM DIRECTOR_FILM df " +
-                "LEFT JOIN films f ON df.FILM_ID = f.ID " +
-                "WHERE  df.director_id =? " +
-                "ORDER BY f.RELEASE_DATE ";
 
-        List<Long> filmsId = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), id);
+        List<Long> filmsId = jdbcTemplate.query(GET_YEAR_SORTED_FILM_BY_DIRECTOR_ID_SQL, (rs, rowNum) -> rs.getLong("film_id"), id);
 
         List<Film> films = new ArrayList<>();
 
@@ -323,15 +340,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getLikeSortedFilmsByDirectorId(long id) {
-        String sql = "SELECT df.film_id  " +
-                     "FROM DIRECTOR_FILM df " +
-                     "LEFT JOIN films f ON df.FILM_ID = f.ID " +
-                     "LEFT JOIN LIKES l ON df.FILM_ID = l.FILM_ID " +
-                     "WHERE df.DIRECTOR_ID = ? " +
-                     "GROUP BY df.FILM_ID " +
-                     "ORDER BY COUNT(l.user_id) ASC";
 
-        List<Long> filmsId = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), id);
+        List<Long> filmsId = jdbcTemplate.query(GET_LIKE_SORTED_FILM_BY_DIRECTOR_ID_SQL, (rs, rowNum) -> rs.getLong("film_id"), id);
 
         List<Film> films = new ArrayList<>();
 
@@ -350,11 +360,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private List<Director> getListDirectorsByFilmId (long id) {
-        String sql = "select df.DIRECTOR_ID as id, d.name " +
-                "from director_film df " +
-                "left join directors d on df.director_id = d.id " +
-                "where df.film_id=? group by df.film_id";
-
-        return jdbcTemplate.query(sql, new DirectorMapper(), id);
+        return jdbcTemplate.query(GET_LIST_DIRECTORS_BY_FILM_ID_SQL, new DirectorMapper(), id);
     }
 }
