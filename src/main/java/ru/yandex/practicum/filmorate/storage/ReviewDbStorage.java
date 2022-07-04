@@ -15,7 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.Optional;
 
 
 @Slf4j
@@ -24,10 +23,16 @@ import java.util.Optional;
 public class ReviewDbStorage implements ReviewStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final String upRate = "UPDATE REVIEWS SET RATE = RATE + 1 WHERE ID=?";
-    private final String downRate = "UPDATE REVIEWS SET RATE = RATE - 1 WHERE ID=?";
-    private final String delete = "DELETE FROM REVIEWS_LIKES WHERE USER_ID=? AND REVIEW_ID =? AND IS_USEFUL = ?";
-    private final String addLike = "INSERT INTO REVIEWS_LIKES (REVIEW_ID,USER_ID,IS_USEFUL) VALUES (?,?,?)";
+
+    private final String UPDATE = "UPDATE REVIEWS SET CONTENT=?,IS_POSITIVE=? WHERE id = ?";
+    private final String GET_BY_ID = "SELECT * FROM REVIEWS WHERE ID = ?";
+    private final String UP_RATE = "UPDATE REVIEWS SET RATE = RATE + 1 WHERE ID=?";
+    private final String DOWN_RATE = "UPDATE REVIEWS SET RATE = RATE - 1 WHERE ID=?";
+    private final String DELETE_FROM_REVIEWS_LIKES = "DELETE FROM REVIEWS_LIKES WHERE USER_ID=? AND REVIEW_ID =? AND IS_USEFUL = ?";
+    private final String ADD_LIKE = "INSERT INTO REVIEWS_LIKES (REVIEW_ID,USER_ID,IS_USEFUL) VALUES (?,?,?)";
+    private final String GET_ALL_BY_ID1 = "SELECT * FROM REVIEWS ORDER BY RATE DESC LIMIT ?";
+    private final String GET_ALL_BY_ID2 = "SELECT * FROM REVIEWS WHERE FILM_ID=? ORDER BY RATE DESC LIMIT ?";
+    private final String REMOVE_REVIEW = "DELETE FROM REVIEWS WHERE ID=?";
 
     @Override
     public Review create(Review review) {
@@ -45,21 +50,16 @@ public class ReviewDbStorage implements ReviewStorage {
             return reviewStatement;
         }, keyHolder);
 
-        String sql = "SELECT * FROM REVIEWS WHERE ID = ?";
-
-        Review filmReview = jdbcTemplate.queryForObject(sql, this::reviewRows, keyHolder.getKey());
+        Review filmReview = jdbcTemplate.queryForObject(GET_BY_ID, this::reviewRows, keyHolder.getKey());
 
         return filmReview;
-
 
     }
 
     @Override
     public Review update(Review review) {
 
-        String sql = "UPDATE REVIEWS SET CONTENT=?,IS_POSITIVE=? WHERE id = ?";
-
-        int check = jdbcTemplate.update(sql, review.getContent(), review.getIsPositive(), review.getId());
+        int check = jdbcTemplate.update(UPDATE, review.getContent(), review.getIsPositive(), review.getId());
 
         if (check != 0) {
             return getById(review.getId());
@@ -70,67 +70,61 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review getById(Long id) {
 
-        String getReview = "SELECT * FROM REVIEWS WHERE ID=?";
-
         Review review = null;
         try {
-            review = jdbcTemplate.queryForObject(getReview, this::reviewRows, id);
+            review = jdbcTemplate.queryForObject(GET_BY_ID, this::reviewRows, id);
         } catch (DataAccessException e) {
             throw new ReviewsNotFoundExceptions("Обзор не найден");
         }
-            return review;
+        return review;
     }
 
     @Override
     public void remove(Long id) {
 
-        String delete = "DELETE FROM REVIEWS WHERE ID=?";
-        jdbcTemplate.update(delete, id);
+        jdbcTemplate.update(REMOVE_REVIEW, id);
 
     }
 
     @Override
     public Collection<Review> getAll(Long filmId, int count) {
 
-        String getAllById1 = "SELECT * FROM REVIEWS ORDER BY RATE DESC LIMIT ?";
-        String getAllById2 = "SELECT * FROM REVIEWS WHERE FILM_ID=? ORDER BY RATE DESC LIMIT ?";
-
         if (filmId > 0) {
-            return jdbcTemplate.query(getAllById2, this::reviewRows, filmId, count);
+            return jdbcTemplate.query(GET_ALL_BY_ID2, this::reviewRows, filmId, count);
         } else {
-            return jdbcTemplate.query(getAllById1, this::reviewRows, count);
+            return jdbcTemplate.query(GET_ALL_BY_ID1, this::reviewRows, count);
         }
     }
 
     @Override
     public void addLike(Long reviewID, Long userId) {
 
-        jdbcTemplate.update(addLike, reviewID, userId, true);
-        jdbcTemplate.update(upRate, reviewID);
+        jdbcTemplate.update(ADD_LIKE, reviewID, userId, true);
+        jdbcTemplate.update(UP_RATE, reviewID);
 
     }
 
     @Override
     public void addDislike(Long reviewId, Long userId) {
 
-        jdbcTemplate.update(addLike, reviewId, userId, false);
-        jdbcTemplate.update(downRate, reviewId);
+        jdbcTemplate.update(ADD_LIKE, reviewId, userId, false);
+        jdbcTemplate.update(DOWN_RATE, reviewId);
 
     }
 
     @Override
     public void removeLike(Long userId, Long reviewId) {
 
-        jdbcTemplate.update(delete, userId, reviewId);
-        jdbcTemplate.update(downRate, reviewId, true);
+        jdbcTemplate.update(DELETE_FROM_REVIEWS_LIKES, userId, reviewId);
+        jdbcTemplate.update(DOWN_RATE, reviewId, true);
 
     }
 
     @Override
     public void removeDislike(Long userId, Long reviewId) {
 
-        jdbcTemplate.update(delete, userId, reviewId);
-        jdbcTemplate.update(upRate, reviewId, false);
+        jdbcTemplate.update(DELETE_FROM_REVIEWS_LIKES, userId, reviewId);
+        jdbcTemplate.update(UP_RATE, reviewId, false);
 
     }
 
