@@ -18,6 +18,24 @@ import java.util.*;
 @Component
 @Primary
 public class FilmDbStorage implements FilmStorage {
+    String GET_LIKE_SORTED_FILM_BY_DIRECTOR_ID_SQL = "SELECT df.film_id  " +
+            "FROM DIRECTOR_FILM df " +
+            "LEFT JOIN films f ON df.FILM_ID = f.ID " +
+            "LEFT JOIN LIKES l ON df.FILM_ID = l.FILM_ID " +
+            "WHERE df.DIRECTOR_ID = ? " +
+            "GROUP BY df.FILM_ID " +
+            "ORDER BY COUNT(l.user_id) ASC";
+
+    String GET_YEAR_SORTED_FILM_BY_DIRECTOR_ID_SQL = "SELECT df.film_id FROM DIRECTOR_FILM df " +
+            "LEFT JOIN films f ON df.FILM_ID = f.ID " +
+            "WHERE  df.director_id =? " +
+            "ORDER BY f.RELEASE_DATE ";
+
+    String GET_LIST_DIRECTORS_BY_FILM_ID_SQL = "select df.DIRECTOR_ID as id, d.name " +
+            "from director_film df " +
+            "left join directors d on df.director_id = d.id " +
+            "where df.film_id=? group by df.film_id";
+
     private final JdbcTemplate jdbcTemplate;
     private Long id = Long.valueOf(1);
 
@@ -303,12 +321,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getYearSortedFilmsByDirectorId(long id) {
-        String sql = "SELECT df.film_id FROM DIRECTOR_FILM df " +
-                "LEFT JOIN films f ON df.FILM_ID = f.ID " +
-                "WHERE  df.director_id =? " +
-                "ORDER BY f.RELEASE_DATE ";
 
-        List<Long> filmsId = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), id);
+        List<Long> filmsId = jdbcTemplate.query(GET_YEAR_SORTED_FILM_BY_DIRECTOR_ID_SQL, (rs, rowNum) -> rs.getLong("film_id"), id);
 
         List<Film> films = new ArrayList<>();
 
@@ -323,15 +337,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getLikeSortedFilmsByDirectorId(long id) {
-        String sql = "SELECT df.film_id  " +
-                     "FROM DIRECTOR_FILM df " +
-                     "LEFT JOIN films f ON df.FILM_ID = f.ID " +
-                     "LEFT JOIN LIKES l ON df.FILM_ID = l.FILM_ID " +
-                     "WHERE df.DIRECTOR_ID = ? " +
-                     "GROUP BY df.FILM_ID " +
-                     "ORDER BY COUNT(l.user_id) ASC";
 
-        List<Long> filmsId = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("film_id"), id);
+        List<Long> filmsId = jdbcTemplate.query(GET_LIKE_SORTED_FILM_BY_DIRECTOR_ID_SQL, (rs, rowNum) -> rs.getLong("film_id"), id);
 
         List<Film> films = new ArrayList<>();
 
@@ -350,11 +357,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private List<Director> getListDirectorsByFilmId (long id) {
-        String sql = "select df.DIRECTOR_ID as id, d.name " +
-                "from director_film df " +
-                "left join directors d on df.director_id = d.id " +
-                "where df.film_id=? group by df.film_id";
-
-        return jdbcTemplate.query(sql, new DirectorMapper(), id);
+        return jdbcTemplate.query(GET_LIST_DIRECTORS_BY_FILM_ID_SQL, new DirectorMapper(), id);
     }
 }
