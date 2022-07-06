@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.daoImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -9,13 +9,14 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.storage.dao.DirectorStorage;
 
 import java.util.Collection;
 import java.util.Optional;
 
 @Component
 @Primary
-public class DirectorDbStorage implements DirectorStorage{
+public class DirectorDbStorage implements DirectorStorage {
     String GET_BY_ID_SQL = "select * from directors where id=?";
     String UPDATE_DIRECTOR_SQL = "UPDATE directors set name=? where id=?";
     String DELETE_DIRECTOR_SQL = "delete from directors cascade WHERE id = ?";

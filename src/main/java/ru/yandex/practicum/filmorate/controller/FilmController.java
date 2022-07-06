@@ -105,4 +105,13 @@ public class FilmController {
         return filmService.getSortedFilmsByDirectorId(directorId, sortBy);
 
     }
+
+    @GetMapping("/search")
+    public Collection<Film> getSortedFilmsBySubstring(
+            @RequestParam String query,
+            @RequestParam String by
+    ){
+        return filmService.getSortedFilmsBySubstring(query, by);
+
+    }
 }

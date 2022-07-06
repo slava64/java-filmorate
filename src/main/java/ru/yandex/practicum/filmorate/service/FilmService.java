@@ -4,18 +4,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.ReleaseDateException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.EventDbStorage;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.daoImpl.EventDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.dao.LikeStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class FilmService {
@@ -118,19 +120,18 @@ public class FilmService {
             if (sortBy.get().equals("year")) {
                 films = filmStorage.getYearSortedFilmsByDirectorId(directorId);
             } else if (sortBy.get().equals("likes")) {
-                films =  filmStorage.getLikeSortedFilmsByDirectorId(directorId);
+                films = filmStorage.getLikeSortedFilmsByDirectorId(directorId);
             }
         }
         return films;
     }
 
 
-
     private Set<Film> getTopOverCrossingFilms(List<Film> films, List<Long> ids) {
         log.debug("getTopOverCrossingFilms case, films = {}, ids = {}", films.toString(), ids.toString());
 
         Set<Film> result = new HashSet<>();
-        for (Long id: ids) {
+        for (Long id : ids) {
             List<Film> tmpList = findLikedByTarget(id);
             tmpList.removeAll(films);
             result.addAll(tmpList);
@@ -142,21 +143,21 @@ public class FilmService {
         log.debug("findMatchedUsersId case, films = {}", films.toString());
 
         List<Long> result = new LinkedList<>();
-        Map<Long,Integer> commonLiked = new TreeMap<>();
-        for (Film film: films) {
-                for (Long like : film.getLikes()) {
-                    if (commonLiked.containsKey(like)) {
-                        commonLiked.put(like, commonLiked.get(like) + 1);
-                    } else {
-                        commonLiked.put(like,  1);
-                    }
+        Map<Long, Integer> commonLiked = new TreeMap<>();
+        for (Film film : films) {
+            for (Long like : film.getLikes()) {
+                if (commonLiked.containsKey(like)) {
+                    commonLiked.put(like, commonLiked.get(like) + 1);
+                } else {
+                    commonLiked.put(like, 1);
                 }
+            }
         }
-        List<Map.Entry<Long,Integer>> entries =  commonLiked.entrySet()
+        List<Map.Entry<Long, Integer>> entries = commonLiked.entrySet()
                 .stream().filter(e -> !e.getKey().equals(id))
                 .sorted(Comparator.comparingInt(Map.Entry::getValue))
                 .collect(Collectors.toList());
-        for (Map.Entry<Long,Integer> entry : entries) {
+        for (Map.Entry<Long, Integer> entry : entries) {
             result.add(entry.getKey());
         }
         return result;
@@ -164,7 +165,7 @@ public class FilmService {
 
 
     private List<Film> findLikedByTarget(Long id) {
-        log.debug("findLikedByTarget case, id = {}",id);
+        log.debug("findLikedByTarget case, id = {}", id);
 
         return filmStorage.findAll()
                 .values()
@@ -175,8 +176,8 @@ public class FilmService {
     }
 
     public Set<Film> findRecommendations(Long id) {
-        log.debug("findRecommendations case, id = {}",id);
-        List<Film> films =  findLikedByTarget(id);
+        log.debug("findRecommendations case, id = {}", id);
+        List<Film> films = findLikedByTarget(id);
         List<Long> matchedUsers = findMatchedUsersId(films, id);
         return getTopOverCrossingFilms(films, matchedUsers);
     }
@@ -191,4 +192,23 @@ public class FilmService {
                 .sorted(Comparator.comparingInt(Film::getRate))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
+
+    public Collection<Film> getSortedFilmsBySubstring(String query, String by) {
+        Collection<Film> films = null;
+        String[] checkParameters = by.split(",");
+        if (checkParameters.length == 2) {
+            films = filmStorage.getFilmsWhereDirectorNameAndFilmTitleContainsQuery(query);
+        } else if (by.contains("director")) {
+            films = filmStorage.getFilmsWhereDirectorNameContainsQuery(query);
+        } else if (by.contains("title")) {
+            films = filmStorage.getFilmsWhereFilmTitleContainsQuery(query);
+        } else {
+            throw new IncorrectParameterException("by");
+        }
+
+        return films.stream()
+                .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                .collect(Collectors.toList());
+    }
 }
+

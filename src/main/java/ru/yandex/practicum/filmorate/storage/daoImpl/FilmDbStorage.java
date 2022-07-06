@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.daoImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.dao.FilmStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,6 +54,18 @@ public class FilmDbStorage implements FilmStorage {
             " left join films_genres as fg on f.id = fg.film_id " +
             " left join genres as g on fg.genre_id  = g.id" +
             " WHERE extract(year from f.RELEASE_DATE) = ?";
+
+    String GET_SORTED_FILM_WHERE_FILM_NAME_AND_DIR_NAME_CONTAINS_SUBSTRING_SQL = "select f.id from films as f" +
+            " left join director_film as df on f.id = df.film_id" +
+            " left join directors as d on df.director_id = d.id" +
+            " where f.name ~* ? or d.name ~* ?";
+
+    String GET_SORTED_FILM_WHERE_DIR_NAME_CONTAINS_SUBSTRING_SQL = "select df.film_id from director_film as df" +
+            " left join directors as d on df.director_id = d.id" +
+            " where d.name ~* ?";
+
+    String GET_FILMS_WHERE_FILM_NAME_CONTAINS_SUBSTRING_SQL = "select id from films where name ~* ?";
+
 
     private final JdbcTemplate jdbcTemplate;
     private Long id = Long.valueOf(1);
@@ -154,6 +167,7 @@ public class FilmDbStorage implements FilmStorage {
                     return results;
                 });
     }
+
     @Override
     public Map<Long, Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
 
@@ -199,6 +213,7 @@ public class FilmDbStorage implements FilmStorage {
             }, genreId);
         }
     }
+
     @Override
     public Optional<Film> findOne(Long id) {
         try {
@@ -326,16 +341,7 @@ public class FilmDbStorage implements FilmStorage {
     public Collection<Film> getYearSortedFilmsByDirectorId(long id) {
 
         List<Long> filmsId = jdbcTemplate.query(GET_YEAR_SORTED_FILM_BY_DIRECTOR_ID_SQL, (rs, rowNum) -> rs.getLong("film_id"), id);
-
-        List<Film> films = new ArrayList<>();
-
-        for (long l : filmsId) {
-            if (findOne(l).isPresent()) {
-                films.add(findOne(l).get());
-            }
-        }
-
-        return films;
+        return getListFilmsByListLongId(filmsId);
     }
 
     @Override
@@ -343,13 +349,7 @@ public class FilmDbStorage implements FilmStorage {
 
         List<Long> filmsId = jdbcTemplate.query(GET_LIKE_SORTED_FILM_BY_DIRECTOR_ID_SQL, (rs, rowNum) -> rs.getLong("film_id"), id);
 
-        List<Film> films = new ArrayList<>();
-
-        for (long l : filmsId) {
-            if (findOne(l).isPresent()) {
-                films.add(findOne(l).get());
-            }
-        }
+        List<Film> films = getListFilmsByListLongId(filmsId);
 
         if (films.size() == 0) {
             throw new FilmNotFoundException("Проверьте правильно ли указано имя режиссера." +
@@ -359,7 +359,40 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
-    private List<Director> getListDirectorsByFilmId (long id) {
+    private List<Director> getListDirectorsByFilmId(long id) {
         return jdbcTemplate.query(GET_LIST_DIRECTORS_BY_FILM_ID_SQL, new DirectorMapper(), id);
+    }
+
+    @Override
+    public Collection<Film> getFilmsWhereDirectorNameAndFilmTitleContainsQuery(String query) {
+
+        List<Long> filmsId = jdbcTemplate.query(GET_SORTED_FILM_WHERE_FILM_NAME_AND_DIR_NAME_CONTAINS_SUBSTRING_SQL, (rs, rowNum) -> rs.getLong("id"), query, query);
+        return getListFilmsByListLongId(filmsId);
+    }
+
+    @Override
+    public Collection<Film> getFilmsWhereDirectorNameContainsQuery(String query) {
+
+        List<Long> filmsId = jdbcTemplate.query(GET_SORTED_FILM_WHERE_DIR_NAME_CONTAINS_SUBSTRING_SQL, (rs, rowNum) -> rs.getLong("film_id"), query);
+        return getListFilmsByListLongId(filmsId);
+    }
+
+    @Override
+    public Collection<Film> getFilmsWhereFilmTitleContainsQuery(String query) {
+
+        List<Long> filmsId = jdbcTemplate.query(GET_FILMS_WHERE_FILM_NAME_CONTAINS_SUBSTRING_SQL, (rs, rowNum) -> rs.getLong("id"), query);
+        return getListFilmsByListLongId(filmsId);
+
+    }
+
+    private List<Film> getListFilmsByListLongId(List<Long> idList) {
+        List<Film> films = new ArrayList<>();
+
+        for (long l : idList) {
+            if (findOne(l).isPresent()) {
+                films.add(findOne(l).get());
+            }
+        }
+        return films;
     }
 }

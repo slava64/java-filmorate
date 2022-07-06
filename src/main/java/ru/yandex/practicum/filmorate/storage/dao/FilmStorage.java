@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.dao;
 
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -24,4 +24,10 @@ public interface FilmStorage {
     Collection<Film> getLikeSortedFilmsByDirectorId(long id);
     //возвращает популярные фильмы по году и жанру
     Map<Long, Film> getPopularFilms(Integer count, Integer genreId, Integer year);
+    //возвращает список фильмов, где имя режиссера и название фильма содержат подстроку
+    Collection<Film> getFilmsWhereDirectorNameAndFilmTitleContainsQuery(String query);
+    //возвращает список фильмов, где имя режиссера содержат подстроку
+    Collection<Film> getFilmsWhereDirectorNameContainsQuery(String query);
+    //возвращает список фильмов, где название фильма содержат подстроку
+    Collection<Film> getFilmsWhereFilmTitleContainsQuery(String query);
 }

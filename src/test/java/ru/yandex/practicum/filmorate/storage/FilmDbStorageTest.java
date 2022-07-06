@@ -10,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.daoImpl.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.daoImpl.MpaDbStorage;
 
 import java.time.LocalDate;
 import java.util.Map;
